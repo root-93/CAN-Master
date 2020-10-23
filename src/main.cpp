@@ -10,7 +10,7 @@ using namespace std;
 
 int main([[maybe_unused]]int argc,[[maybe_unused]] char *argv[]) {
     
-    system("/home/root93/Repo/C++/CAN\\ Master/python/setvcan0.sh");
+    system("/home/root93/Repo/C++/CAN\\ Master/bash/setvcan0.sh");
     
     initscr();
     keypad(stdscr, true);
