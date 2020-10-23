@@ -1,37 +1,31 @@
-#define C_PLUS_PLUS
-
 #include <ncurses.h>
+#include <stdlib.h>
 #include "../include/canutils.hpp"
 #include "../include/menu.hpp"
 #include "../include/menucontent.hpp"
-#include <unistd.h>
+#include "../include/controler.hpp"
 
-enum{
-    kbUp = 72,
-    kbDown = 80,
-    kbLeft = 77,
-    kbEscape = 27
-};
+using namespace std;
 
-int main() {
+
+int main([[maybe_unused]]int argc,[[maybe_unused]] char *argv[]) {
+    
+    system("/home/root93/Repo/C++/CAN\\ Master/python/setvcan0.sh");
+    
     initscr();
     keypad(stdscr, true);
-    noecho();
-    printw("Hello from Can Master!\n");
+    
 
     MenuContent mC;
-    Menu menu(std::move(mC));
-    
+    Controler controler;
+    Menu menu(std::move(mC), &controler);
 
     char kbCode;
     while (true){
-        menu.pActualMenu->showMenu();
+        menu.showMenu();
         kbCode = getch();
-        printf("code = %i", kbCode);
-        usleep(200000);
-        // switch(KbCode){
-        //     case(kbDown)
-        // }
+        menu.action(kbCode);
+
         if(kbCode == 'e')
             break;
     }
@@ -40,15 +34,3 @@ int main() {
     getch();
     endwin();
 }
-
-
-//==========================================================
-    // char *param0 = const_cast<char *>("canDump");
-    // char *param1 = const_cast<char *>("vcan0");
-    // char *pCanDumpArg[] {param0,
-    //                      param1};
-
-    // char **ppCanDumpArg = pCanDumpArg;
-    // int returnValue = canDump(2, ppCanDumpArg);
-    // cout << returnValue;
-//==========================================================

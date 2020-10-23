@@ -2,17 +2,18 @@
 #include "../include/menucontent.hpp"
 #include "../include/menucell.hpp"
 
-Menu::Menu(MenuContent &&mC) : BaseMenu(mC.mainMenuName, mC.mainMenuList){  
-    pSelectedCell = menuCells.data();
 
-    pCanUtilsMenu = new BaseMenu(mC.canUtilsMenuName, mC.canUtilsMenuList, this);
-    
-    pSomethingElseMenu = new BaseMenu(mC.somethingElseMenuName, mC.somethingElseMenuList, this);
-    
+
+Menu::Menu(MenuContent &&mC, Controler* controler) :
+     BaseMenu(mC.mainMenuName, mC.mainMenuList), _pControler{controler}{
+    auto pMenuList {mC.pMenuList.front()};
+    _pActualMenu = this;
+    _pSelectedCell = &_menuCells.front();
+    this->createSubMenu(pMenuList);
 }
 
 Menu::~Menu(){
-       pCanUtilsMenu = nullptr;
-       pSomethingElseMenu = nullptr;
-       pActualMenu = nullptr;
+    deleteSubMenu();
+    _pActualMenu = nullptr;
+    _pSelectedCell = nullptr;
 }

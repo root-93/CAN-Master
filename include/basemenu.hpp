@@ -1,34 +1,38 @@
 #pragma once
 #include <ncurses.h>
 #include <string>
-#include <vector>
-#include <initializer_list>
+#include "canmaster.hpp"
 #include "menucell.hpp"
-
-typedef std::vector<MenuCell> MenuCells;
 
 class BaseMenu{
     public:
-        BaseMenu(std::string name, 
-                MenuCells cells, 
-                BaseMenu *parent = nullptr)
-                :name{name}, 
-                menuCells{cells}, 
-                pParent{parent} {};
-
-        virtual ~BaseMenu(){}
-
-        virtual void showMenu()const;
-        virtual bool isSelected(int ID)const{
-            printw("mc ID: %i, ", ID);
-            printw("pSC ID: %i  |",pSelectedCell->getID());
-            return ID == pSelectedCell->getID();
-        }
+        BaseMenu            (std::string name, MenuCells& cells, BaseMenu* parent = nullptr)
+                                :pParent{parent}, _name{name}, _menuCells{cells}, _pSelectedCell{getFirstCellPointer()}{};
+        virtual             ~BaseMenu(){}
         
+        virtual void        showMenu()const noexcept;
+        virtual void        action(char key);
+        BaseMenu*           pParent; 
+    
     protected:
-        std::string name;
-        std::vector<MenuCell> menuCells;
-        const BaseMenu *pParent;
-        const MenuCell *pSelectedCell;                 
+        std::string         _name;
+        MenuCells           _menuCells;
+        MenuCell*           _pSelectedCell = nullptr;
+           
+        MenuCell*           getFirstCellPointer(){return &_menuCells.front();}
+        MenuCell*           getLastCellPointer(){return &_menuCells.back();}
+        void                createSubMenu(MenuCells* menuList);
+        void                deleteSubMenu();
+        const BaseMenu*     getMainMenuPointer()const{return (pParent == nullptr) ? this : pParent->getMainMenuPointer();}
+        virtual bool        isSelected(const MenuCell &cell)const;
 
+        enum Key{
+            kbDown = 2,
+            kbUp,
+            kbLeft,
+            kbRight,
+            kbBackspace = 7,
+            kbEnter = 10,
+            kbEscape = 27
+        };
 };

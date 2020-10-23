@@ -1,17 +1,17 @@
 #pragma once
-#include "menucell.hpp"
 #include "basemenu.hpp"
 #include "menucontent.hpp"
-#include <initializer_list>
+#include "controler.hpp"
 
-class Menu : BaseMenu{
+class Menu : public BaseMenu{
     public:
-        Menu(MenuContent &&mC);
-        ~Menu();
-        const BaseMenu *pActualMenu = this;
-        const MenuCell *pSelectedCell = nullptr;
-        
-    private: 
-        BaseMenu *pCanUtilsMenu;
-        BaseMenu *pSomethingElseMenu;
+                            Menu(MenuContent&& mC, Controler* controler);
+                            ~Menu();
+        void                showMenu(){_pActualMenu->showMenu();}
+        void                action(char key){_pActualMenu->BaseMenu::action(key);}
+        BaseMenu**          getActualMenuPointer() {return &_pActualMenu;}
+        Controler*          getControlerP() {return _pControler;}
+    private:
+        BaseMenu*           _pActualMenu = this;
+        Controler* const    _pControler = nullptr;
 };

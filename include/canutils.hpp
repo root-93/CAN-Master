@@ -1,7 +1,6 @@
-#ifndef CANUTILS_H
-#define CANUTILS_H
+#pragma once
 
-#ifdef C_PLUS_PLUS
+#ifdef __cplusplus
 extern "C"{
 #endif
 
@@ -11,8 +10,6 @@ extern "C"{
     int canSend(int argc, char **argv);
     int canSniffer(int argc, char **argv);
 
-#ifdef C_PLUS_PLUS
+#ifdef __cplusplus
 }
 #endif
-
-#endif //CANUTILS_H

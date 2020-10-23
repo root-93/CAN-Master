@@ -1,55 +1,45 @@
 #pragma once
 #include <vector>
 #include <string>
-#include "menucell.hpp"
-
-typedef std::vector<MenuCell> MenuCells;
-class BaseMenu;
+#include <stdlib.h> //std::exit()
 
 struct MenuContent{
-    //Menu level 2 : parent(mainMenu)
-    BaseMenu *pCanUtilsMenu = nullptr;
-    std::string canUtilsMenuName = "Can Utils";
+    std::string mainMenuName {"Menu Główne"};
 
-    BaseMenu *pSomethingElseMenu = nullptr;
-    std::string somethingElseMenuName = "Something";
-
-    //Menu Level 1
-
-    BaseMenu *pMainMenu = nullptr;
-    std::string mainMenuName = "Menu glowne";
+    MenuCells mainMenuList{
+        MenuCell(1, "Can Utils", true),
+        MenuCell(2, "Something else", true),
+        MenuCell(3, "Nothing"),
+        MenuCell(9, "Exit", false, [](){std::exit(EXIT_SUCCESS);})
+    };
     
-    //Cells definition
+    std::vector<MenuCells*> pMenuList{
+        &canUtils,
+        &somethingElse,
+            &thirdLevel
+    };
     
-    MenuCells canUtilsMenuList {
+    MenuCells canUtils {
         MenuCell(1, "Candump"),
         MenuCell(2, "Cangen"),
         MenuCell(3, "Canplayer"),
         MenuCell(4, "Cansend"),
-        MenuCell(5, "Cansniffer"),
-        MenuCell(9, "Back", pMainMenu)
+        MenuCell(5, "Cansniffer", false),
+        MenuCell(9, "Back")
     };
 
-    MenuCells somethingElseMenuList {
+    MenuCells somethingElse {
         MenuCell(1, "cell 1"),
-        MenuCell(2, "cell 2"),
+        MenuCell(2, "Third Level", true),
         MenuCell(3, "cell 3"),
         MenuCell(4, "cell 4"),
         MenuCell(5, "cell 5"),
-        MenuCell(9, "Back", pMainMenu)
+        MenuCell(9, "Back")
     };
-
-    MenuCells mainMenuList{
-        MenuCell(1, "Can Utils", pCanUtilsMenu),
-        MenuCell(2, "Something else", pSomethingElseMenu),
-        MenuCell(9, "Exit")
+    
+    MenuCells thirdLevel {
+        MenuCell(1, "cell 1"),
+        MenuCell(2, "cell 2"),
+        MenuCell(9, "Back")
     };
-
-    void setSubmenu(){
-
-    }
-
-    void closeApp(){
-        //printw("I don't know what I should to do :(");
-    }
 };
