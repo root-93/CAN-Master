@@ -225,7 +225,7 @@ static void print_usage(char *prg)
 	fprintf(stderr, "%s", manual);
 }
 
-static void sigterm(int signo)
+static void sigterm(int __attribute__((unused)) signo)
 {
 	running = 0;
 }
@@ -245,6 +245,7 @@ int canSniffer(int argc, char **argv)
 	signal(SIGTERM, sigterm);
 	signal(SIGHUP, sigterm);
 	signal(SIGINT, sigterm);
+	signal(SIGQUIT, sigterm);
 
 	for (i = 0; i < MAX_SLOTS ;i++) /* default: enable all slots */
 		do_set(i, ENABLE);

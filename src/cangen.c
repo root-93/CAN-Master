@@ -135,7 +135,7 @@ void print_usage(char *prg)
 	fprintf(stderr, "\t(my favourite default :)\n\n");
 }
 
-void sigterm(int signo)
+void sigterm(int __attribute__((unused)) signo)
 {
 	running = 0;
 }

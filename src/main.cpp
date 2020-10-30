@@ -1,9 +1,9 @@
 #include <ncurses.h>
 #include <stdlib.h>
-#include "../include/canutils.hpp"
-#include "../include/menu.hpp"
-#include "../include/menucontent.hpp"
-#include "../include/controler.hpp"
+#include "../include/CanUtils.hpp"
+#include "../include/Menu.hpp"
+#include "../include/MenuContent.hpp"
+#include "../include/Controler.hpp"
 
 using namespace std;
 
@@ -18,13 +18,13 @@ int main([[maybe_unused]]int argc,[[maybe_unused]] char *argv[]) {
 
     MenuContent mC;
     Controler controler;
-    Menu menu(std::move(mC), &controler);
+    Menu menu(std::move(mC));
 
     char kbCode;
     while (true){
-        menu.showMenu();
+        menu.show();
         kbCode = getch();
-        menu.action(kbCode);
+        menu.execAction(kbCode);
 
         if(kbCode == 'e')
             break;

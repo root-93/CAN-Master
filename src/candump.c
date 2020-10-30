@@ -161,7 +161,7 @@ static void print_usage(char *prg)
 	fprintf(stderr, "\n");
 }
 
-static void sigterm(int signo)
+static void sigterm(int __attribute__((unused)) signo)
 {
 	running = 0;
 }

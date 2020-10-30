@@ -18,3 +18,5 @@ else
     echo "vcan0 interface configuration necessary"
     set_eth
 fi
+
+clear

@@ -1,10 +1,8 @@
 #pragma once
 #include <vector>
-#include <string>
 #include <iostream>
-#include "menucell.hpp"
-
-using MenuCells = std::vector<MenuCell>;
+using Cell = std::pair<const char*, bool>;
+using MenuCells = std::vector<Cell>;
 
 #define LOG(msg) errorLog(__FUNCTION__, msg)
 
