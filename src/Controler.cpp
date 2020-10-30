@@ -51,9 +51,3 @@ void Controler::canSniffer(){
         initscr();
         keypad(stdscr, true);
 }
-// char** Controler::createArgumentTable(vector<string> argV){
-//     //char *param0 = const_cast<char *>(func);
-//     //char *param1 = const_cast<char *>(socket);
-//     char *pArgT[] {argV};
-//     return &pArgT;
-// }

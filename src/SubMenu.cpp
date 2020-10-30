@@ -15,18 +15,18 @@ void SubMenu::createMenu(MenuCells* pMenuList){
             add(new SubMenu(ID++, s.first, this, _ppActualMenu));
             
             if(dynamic_cast<MenuCells*>(pMenuList + 1))
-                (*this->ppGetLast())->createMenu(++pMenuList); //recurrence
+                (*this->GetLastPP())->createMenu(++pMenuList); //recurrence
             else
                 throw "Submenu is not defined";
         }
         else{
             add(new MenuCell(ID++, s.first, this));
-            dynamic_cast<MenuCell*>(*ppGetLast())->setFunction([](){});//default function
+            dynamic_cast<MenuCell*>(*GetLastPP())->setFunction([](){});//default function
         }
     }
     
-    if(MenuCell *cell = dynamic_cast<MenuCell*>(*ppGetLast())){
-        if(*getParent() == nullptr)
+    if(MenuCell *cell = dynamic_cast<MenuCell*>(*GetLastPP())){
+        if(*getParentPP() == nullptr)
             cell->setFunction([](){std::exit(EXIT_SUCCESS);});
         else
             cell->setFunction([=](){this->execAction(kbEscape);});
@@ -34,7 +34,7 @@ void SubMenu::createMenu(MenuCells* pMenuList){
     else 
         throw "Last cell has to be MenuCell class boject";
     
-    _ppSelectedCell = this->ppGetFirst();
+    _ppSelectedCell = this->GetFirstPP();
 }
 
 
@@ -42,18 +42,18 @@ void SubMenu::createMenu(MenuCells* pMenuList){
 void SubMenu::execAction(char key){
     switch (key){
         case kbDown:
-            if(_ppSelectedCell != ppGetLast())
+            if(_ppSelectedCell != GetLastPP())
                 _ppSelectedCell++;
             break;
         case kbUp:
-            if(_ppSelectedCell != ppGetFirst())
+            if(_ppSelectedCell != GetFirstPP())
                 _ppSelectedCell--;
             break;
         case kbEscape:
         case kbBackspace:
         case kbLeft:
-            if(*getParent() != nullptr){
-                *_ppActualMenu = *getParent();         
+            if(*getParentPP() != nullptr){
+                *_ppActualMenu = *getParentPP();         
             }
             break;
         case kbEnter:

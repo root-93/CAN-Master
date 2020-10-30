@@ -1,7 +1,4 @@
 #include "../include/CompositeMenu.hpp"
-#include "../include/LeafMenu.hpp"
-#include "../include/MenuContent.hpp"
-#include "../include/Menu.hpp"
 #include <ncurses.h>
 
 using CM = CompositeMenu;
