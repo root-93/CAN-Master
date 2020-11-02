@@ -1,15 +1,9 @@
 #pragma once
-#include <string>
-#include <stdlib.h> //std::exit()
-#include <array>
 
 #define COMPOSITE_MENU true
 #define MENU_CELL false
 
 struct MenuContent{
-    std::string mainMenuName {"Menu Główne"};
-
-    //[](){std::exit(EXIT_SUCCESS);}
 
     std::vector<MenuCells*> pMenuList{
         &mainMenuList,

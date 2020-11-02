@@ -1,5 +1,8 @@
 #include "../include/SubMenu.hpp"
-#include "../include/MenuCell.hpp"
+#include "../include/MenuItem.hpp"
+#include "../include/CommandKey.hpp"
+#include "../include/CommandDefault.hpp"
+#include "../include/CommandBack.hpp"
 
 class BaseMenu;
 using CM = CompositeMenu;
@@ -20,26 +23,22 @@ void SubMenu::createMenu(MenuCells* pMenuList){
                 throw "Submenu is not defined";
         }
         else{
-            add(new MenuCell(ID++, s.first, this));
-            dynamic_cast<MenuCell*>(*GetLastPP())->setFunction([](){});//default function
+            auto cell = new MenuItem(ID++, s.first, this);
+            cell->pCommand = new CommandDefault(this);
+            add(cell);
         }
     }
     
-    if(MenuCell *cell = dynamic_cast<MenuCell*>(*GetLastPP())){
-        if(*getParentPP() == nullptr)
-            cell->setFunction([](){std::exit(EXIT_SUCCESS);});
-        else
-            cell->setFunction([=](){this->execAction(kbEscape);});
-    }
-    else 
-        throw "Last cell has to be MenuCell class boject";
+    // it sucks, it need to be improved
+    delete (*GetLastPP())->pCommand;
+    (*GetLastPP())->pCommand = new CommandBack(this);
     
     _ppSelectedCell = this->GetFirstPP();
 }
 
 
 
-void SubMenu::execAction(char key){
+void SubMenu::move(char key) {
     switch (key){
         case kbDown:
             if(_ppSelectedCell != GetLastPP())
@@ -61,9 +60,10 @@ void SubMenu::execAction(char key){
             if(dynamic_cast<CM*>(*_ppSelectedCell))
                 *_ppActualMenu = *_ppSelectedCell;
             else
-                (*_ppSelectedCell)->execAction(key);
+                (*_ppSelectedCell)->pCommand->execute();
             break;
         default:
             break;
     }
 }
+

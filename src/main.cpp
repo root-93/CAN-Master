@@ -24,7 +24,7 @@ int main([[maybe_unused]]int argc,[[maybe_unused]] char *argv[]) {
     while (true){
         menu.show();
         kbCode = getch();
-        menu.execAction(kbCode);
+        menu.execute(kbCode);
 
         if(kbCode == 'e')
             break;

@@ -2,6 +2,7 @@
 #include <vector>
 #include "SubMenu.hpp"
 #include "MenuContent.hpp"
+#include "Command.hpp"
 
 
 class Menu{
@@ -12,8 +13,7 @@ class Menu{
                         }
 
         void        show()const {_actualMenu->show();}  
-        void        execAction(char key) {_actualMenu->execAction(key);}
-        BaseMenu**  getActualMenu(){return &_actualMenu;}
+        void        execute(char key) {_actualMenu->pCommand->execute(key);}
     private:
         SubMenu    subMenu;
         BaseMenu*   _actualMenu = &subMenu;
