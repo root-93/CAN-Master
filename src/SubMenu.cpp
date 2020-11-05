@@ -10,7 +10,6 @@ using CM = CompositeMenu;
 using namespace std;
 
 
-
 void SubMenu::createMenu(MenuCells* pMenuList){
     unsigned int ID = 1;
     for (auto &&s : *pMenuList){

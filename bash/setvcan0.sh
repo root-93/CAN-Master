@@ -13,7 +13,6 @@ function set_eth {
 echo "Start setvcan0 script."
 if check_eth vcan0; then
     echo "vcan0 is up"
-    echo "vcan0 is up"
 else
     echo "vcan0 interface configuration necessary"
     set_eth
