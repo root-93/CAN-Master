@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 #include <QActionGroup>
+#include <QStringListModel>
+
 QT_BEGIN_NAMESPACE
 namespace Ui { class CanMaster; }
 QT_END_NAMESPACE
@@ -15,11 +17,15 @@ class CanMaster : public QMainWindow
         CanMaster(QWidget *parent = nullptr);
         ~CanMaster();
 
-    private slots:
-
+    public slots:
+        void foo(){}
+        void canGen();
 
     private:
         Ui::CanMaster *ui;
-        void createMenuBar();
+        QStringListModel *model;
+        void createMenuBar() noexcept;
+
+
 };
 #endif // CANMASTER_H
