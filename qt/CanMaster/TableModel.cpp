@@ -1,6 +1,6 @@
 #include "TableModel.h"
 
-TableModel::TableModel()
+TableModel::TableModel(QObject *parent) : QAbstractItemModel(parent)
 {
 
 }
