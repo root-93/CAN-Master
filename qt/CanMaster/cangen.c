@@ -76,7 +76,8 @@
 
 extern int optind, opterr, optopt;
 
-static volatile int running = 1;
+//static volatile int running = 1;
+static volatile int *pRunning = NULL;
 static unsigned long long enobufs_count;
 
 void print_usage(char *prg)
@@ -137,11 +138,13 @@ void print_usage(char *prg)
 
 void sigterm(int __attribute__((unused)) signo)
 {
-	running = 0;
+    *pRunning = 0;
 }
 
-int canGen(int argc, char **argv)
+int canGen(int argc, char **argv, int *pR)
 {
+    pRunning = pR;
+
 	double gap = DEFAULT_GAP;
 	unsigned long burst_count = DEFAULT_BURST_COUNT;
 	unsigned long polltimeout = 0;
@@ -374,11 +377,11 @@ int canGen(int argc, char **argv)
 		fds.events = POLLOUT;
 	}
 
-	while (running) {
+    while (*pRunning) {
 		frame.flags = 0;
 
 		if (count && (--count == 0))
-			running = 0;
+            *pRunning = 0;
 
 		if (canfd){
 			mtu = CANFD_MTU;

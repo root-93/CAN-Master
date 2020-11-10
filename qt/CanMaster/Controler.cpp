@@ -11,17 +11,17 @@ using namespace std;
 void Controler::execAction(ViewActionData VAD)const {
 
     if( VAD.cellName == "Candump"){
-        endwin();
-        char *param0 = const_cast<char *>("canDump");
-        char *param1 = const_cast<char *>("vcan0");
-        char *pCanDumpArg[] {param0,
-                             param1};
+        // endwin();
+        // char *param0 = const_cast<char *>("canDump");
+        // char *param1 = const_cast<char *>("vcan0");
+        // char *pCanDumpArg[] {param0,
+        //                      param1};
 
-        char **ppCanDumpArg = pCanDumpArg;
+        // char **ppCanDumpArg = pCanDumpArg;
 
-        [[maybe_unused]] int returnValue = canutils::canDump(2, ppCanDumpArg);
-        initscr();
-        keypad(stdscr, true);
+        // [[maybe_unused]] int returnValue = canutils::canDump(2, ppCanDumpArg);
+        // initscr();
+        // keypad(stdscr, true);
     }
     else if (VAD.cellName == "Cangen"){
 
@@ -40,14 +40,14 @@ void Controler::execAction(ViewActionData VAD)const {
 }
 
 void Controler::canSniffer(){
-    endwin();
-        char *param0 = const_cast<char *>("canSniffer");
-        char *param1 = const_cast<char *>("vcan0");
-        char *pCanDumpArg[] {param0,
-                             param1};
+    // endwin();
+    //     char *param0 = const_cast<char *>("canSniffer");
+    //     char *param1 = const_cast<char *>("vcan0");
+    //     char *pCanDumpArg[] {param0,
+    //                          param1};
 
-        char **ppCanDumpArg = pCanDumpArg;
-        [[maybe_unused]] int returnValue = canutils::canSniffer(2, ppCanDumpArg);
-        initscr();
-        keypad(stdscr, true);
+    //     char **ppCanDumpArg = pCanDumpArg;
+    //     [[maybe_unused]] int returnValue = canutils::canSniffer(2, ppCanDumpArg);
+    //     initscr();
+    //     keypad(stdscr, true);
 }

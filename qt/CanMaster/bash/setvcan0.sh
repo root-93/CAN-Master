@@ -5,7 +5,7 @@ error="not a tty"
 
 if [ "$var" = "$error" ]; then
     cd /home/root93/Repo/C++/CAN\ Master/qt/CanMaster/bash/
-    gnome-terminal --command "./setvcan0.sh"
+    gnome-terminal -- "./setvcan0.sh"
 else
     function check_eth {
         typeset output

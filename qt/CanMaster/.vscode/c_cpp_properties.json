@@ -3,7 +3,11 @@
         {
             "name": "Linux",
             "includePath": [
-                "${default}"
+                "${default}",
+                "/usr/include/x86_64-linux-gnu/qt5/QtWidgets",
+                "/usr/include/x86_64-linux-gnu/qt5",
+                "/usr/include/x86_64-linux-gnu/qt5/QtCore",
+                "/home/root93/Repo/C++/CAN Master/qt/build-CanMaster-Desktop_Qt_5_15_1_GCC_64bit-Debug/"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang",

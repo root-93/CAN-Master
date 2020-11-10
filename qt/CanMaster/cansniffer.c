@@ -114,7 +114,8 @@ static struct snif {
 extern int optind, opterr, optopt;
 
 static int idx;
-static int running = 1;
+//static int running = 1;
+static volatile int *pRunning = NULL;
 static int clearscreen = 1;
 static int print_eff;
 static int notch;
@@ -227,11 +228,18 @@ static void print_usage(char *prg)
 
 static void sigterm(int __attribute__((unused)) signo)
 {
-	running = 0;
+	*pRunning = 0;
 }
 
-int canSniffer(int argc, char **argv)
+
+int canSniffer(int argc, char **argv, int *pR, void **pSniffBuf)
 {
+	//added---
+	pRunning = pR;
+	*pSniffBuf = sniftab;
+	//------------
+
+
 	fd_set rdfs;
 	int s;
 	long currcms = 0;
@@ -350,7 +358,7 @@ int canSniffer(int argc, char **argv)
 
 	printf("%s", CSR_HIDE); /* hide cursor */
 
-	while (running) {
+	while (*pRunning) {
 
 		FD_ZERO(&rdfs);
 		FD_SET(0, &rdfs);
@@ -361,7 +369,7 @@ int canSniffer(int argc, char **argv)
 
 		if ((ret = select(s+1, &rdfs, NULL, NULL, &timeo)) < 0) {
 			//perror("select");
-			running = 0;
+			*pRunning = 0;
 			continue;
 		}
 
@@ -369,13 +377,13 @@ int canSniffer(int argc, char **argv)
 		currcms = (tv.tv_sec - start_tv.tv_sec) * 100 + (tv.tv_usec / 10000);
 
 		if (FD_ISSET(0, &rdfs))
-			running &= handle_keyb();
+			*pRunning &= handle_keyb();
 
 		if (FD_ISSET(s, &rdfs))
-			running &= handle_frame(s, currcms);
+			*pRunning &= handle_frame(s, currcms);
 
 		if (currcms - lastcms >= loop) {
-			running &= handle_timeo(currcms);
+			*pRunning &= handle_timeo(currcms);
 			lastcms = currcms;
 		}
 	}
@@ -490,7 +498,7 @@ int handle_keyb(void)
 		break;
 
 	case 'q' :
-		running = 0;
+		*pRunning = 0;
 		break;
 
 	case 'B' :

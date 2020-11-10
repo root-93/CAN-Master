@@ -1,4 +1,4 @@
-QT       += core gui
+QT       += core gui serialbus
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -13,6 +13,7 @@ SOURCES += \
     CompositeMenu.cpp \
     Controler.cpp \
     SubMenu.cpp \
+    TableModel.cpp \
     candump.c \
     cangen.c \
     canplayer.c \
@@ -36,9 +37,11 @@ HEADERS += \
     MenuContent.hpp \
     MenuItem.hpp \
     SubMenu.hpp \
+    TableModel.h \
     ViewActionData.hpp \
     canmaster.h \
     lib.h \
+    linux/can.h \
     terminal.h
 
 FORMS += \
