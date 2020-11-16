@@ -10,3 +10,7 @@ inline void errorLog(const char* func, const std::string& msg){
     //printw("[%s] %s", func, msg.c_str());
     std::cerr << "[" << func << "] " << msg << std::endl;   
 }
+
+inline int add(int a, int b){
+    return a + b;
+}

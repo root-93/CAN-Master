@@ -1,4 +1,4 @@
-QT       += core gui serialbus
+QT       += core gui serialbus testlib
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -9,45 +9,50 @@ CONFIG += c++17
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
-    CommandKey.cpp \
-    CompositeMenu.cpp \
-    Controler.cpp \
-    SubMenu.cpp \
-    TableModel.cpp \
-    candump.c \
-    cangen.c \
-    canplayer.c \
-    cansend.c \
-    cansniffer.c \
-    lib.c \
-    main.cpp \
-    canmaster.cpp
+    src/CommandKey.cpp \
+    src/CompositeMenu.cpp \
+    src/Controler.cpp \
+    src/SubMenu.cpp \
+    src/TableModel.cpp \
+    src/UnitTest.cpp \
+    src/candump.c \
+    src/cangen.c \
+    src/canplayer.c \
+    src/cansend.c \
+    src/cansniffer.c \
+    src/lib.c \
+    src/main.cpp \
+    src/canmaster.cpp
 
 HEADERS += \
-    BaseMenu.hpp \
-    CanUtils.hpp \
-    Command.hpp \
-    CommandBack.hpp \
-    CommandDefault.hpp \
-    CommandKey.hpp \
-    CompositeMenu.hpp \
-    Controler.hpp \
-    Global.hpp \
-    LeafMenu.hpp \
-    MenuContent.hpp \
-    MenuItem.hpp \
-    SubMenu.hpp \
-    TableModel.h \
-    ViewActionData.hpp \
-    canmaster.h \
-    lib.h \
-    linux/can.h \
-    terminal.h
+    inc/BaseMenu.hpp \
+    inc/CanUtils.hpp \
+    inc/Command.hpp \
+    inc/CommandBack.hpp \
+    inc/CommandDefault.hpp \
+    inc/CommandKey.hpp \
+    inc/CompositeMenu.hpp \
+    inc/Controler.hpp \
+    inc/Global.hpp \
+    inc/LeafMenu.hpp \
+    inc/MenuContent.hpp \
+    inc/MenuItem.hpp \
+    inc/SubMenu.hpp \
+    inc/TableModel.hpp \
+    inc/UnitTest.h \
+    inc/ViewActionData.hpp \
+    inc/canmaster.h \
+    inc/lib.h \
+    inc/linux/can.h \
+    inc/terminal.h \
+    inc/Qt_global.h
+
+INCLUDEPATH += $$PWD/inc
 
 FORMS += \
-    canmaster.ui
+    forms/canmaster.ui
 
-LIBS += -L/usr/lib -lncurses
+LIBS += -L/usr/lib -lncurses -lboost_unit_test_framework
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

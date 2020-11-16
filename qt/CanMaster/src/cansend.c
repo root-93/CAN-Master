@@ -55,7 +55,7 @@
 #include <linux/can.h>
 #include <linux/can/raw.h>
 
-#include "lib.h"
+#include "../inc/lib.h"
 
 static void print_usage(char *prg)
 {

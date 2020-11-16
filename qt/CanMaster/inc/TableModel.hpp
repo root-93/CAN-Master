@@ -1,16 +1,23 @@
 #ifndef TABLEMODEL_H
 #define TABLEMODEL_H
 #include <QAbstractTableModel>
+#include <QCanBus>
+#include "../inc/Qt_global.h"
 
-struct canFrame{
-        int id;
-};
+// struct CanFrame{
+//         // adding new member update columnCount func
+//         int id;
 
-class TableModel : public QAbstractItemModel{
+//         bool operator==(const CanFrame &other) const noexcept{
+//             return id == other.id;
+//         }
+// };
+
+class TableModel : public QAbstractTableModel{
         Q_OBJECT
     public:
         TableModel(QObject *patern = nullptr);
-        TableModel(QVector<canFrame> &frames, QObject *parent = nullptr);
+        TableModel(const QVector<QCanBusFrame> &frames, QObject *parent = nullptr);
 
         int rowCount(const QModelIndex &parent) const override;
         int columnCount(const QModelIndex &parent)const override;
@@ -20,10 +27,11 @@ class TableModel : public QAbstractItemModel{
         bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
         bool insertRows(int position, int rows, const QModelIndex &index = QModelIndex()) override;
         bool removeRows(int position, int rows, const QModelIndex &index = QModelIndex()) override;
-        const QVector<canFrame> &getFrames() const;
+        bool append(const QCanBusFrame *frame);
+        const QVector<QCanBusFrame>& getFrames() const;
 
     private:
-        QVector<canFrame> frames;
+        QVector<QCanBusFrame> frames;
 };
 
 #endif // TABLEMODEL_H

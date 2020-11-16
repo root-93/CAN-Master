@@ -1,9 +1,11 @@
-﻿#include "canmaster.h"
+﻿#include "../inc/canmaster.h"
 #include "ui_canmaster.h"
-#include "CanUtils.hpp"
+#include "../inc/CanUtils.hpp"
 #include <qdebug.h>
 #include <QtConcurrent/qtconcurrentrun.h>
 #include <QString>
+
+
 
 namespace cu = canutils;
 
@@ -11,31 +13,41 @@ CanMaster::CanMaster(QWidget *parent): QMainWindow(parent), ui(new Ui::CanMaster
     ui->setupUi(this);
     createMenuBar();
 
-    model = new QStringListModel(this);
+    QListView *lv = ui->lvData;
+    QTableView *tv = ui->tvData;
 
-    QStringList list {"first", "secoud", "third"};
+    model = new QStringListModel(this);
+    QStringList list {};
+    model->setStringList(list);
+    lv->setModel(model);
+    lv->setFont(QFont("Courier", 12));
+
+    tableModel = new TableModel(this);
+    tv->setModel(tableModel);
 
     connectCan();
-
-    model->setStringList(list);
-
-    ui->lvData->setModel(model);
-    updateLvData();
-
 }
 
 
 CanMaster::~CanMaster(){
     delete ui;
+    *pRunGen = 0;
+    *pRunSniff = 0;
 }
 
 void CanMaster::updateLvData(){
     QStringList list = model->stringList();
-    list.append(pDev->readFrame().toString());
-    QCanBusFrame frame;
-    
+    QCanBusFrame *frame  = new QCanBusFrame();
+    while(pDev->framesAvailable()){
+        *frame = pDev->readFrame();
+        list.append((*frame).toString());
+        tableModel->append(frame);
+    }
+
+
 
     model->setStringList(list);
+    ui->lvData->scrollToBottom();
 }
 
 

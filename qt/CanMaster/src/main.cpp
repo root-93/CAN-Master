@@ -1,8 +1,8 @@
 #include "canmaster.h"
 #include <ncurses.h>
-#include "Menu.hpp"
-#include "MenuContent.hpp"
-#include "Controler.hpp"
+#include "../inc/Menu.hpp"
+#include "../inc/MenuContent.hpp"
+#include "../inc/Controler.hpp"
 #include <QApplication>
 #include <iostream>
 //#include <csignal>

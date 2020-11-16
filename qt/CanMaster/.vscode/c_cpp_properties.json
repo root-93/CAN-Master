@@ -7,7 +7,9 @@
                 "/usr/include/x86_64-linux-gnu/qt5/QtWidgets",
                 "/usr/include/x86_64-linux-gnu/qt5",
                 "/usr/include/x86_64-linux-gnu/qt5/QtCore",
-                "/home/root93/Repo/C++/CAN Master/qt/build-CanMaster-Desktop_Qt_5_15_1_GCC_64bit-Debug/"
+                "/home/root93/Repo/C++/CAN Master/qt/build-CanMaster-Desktop_Qt_5_15_1_GCC_64bit-Debug/",
+                "/home/root93/AppFiles/Qt/5.15.1/gcc_64/include",
+                "/home/root93/AppFiles/Qt/5.15.1/gcc_64/include/QtSerialBus"
             ],
             "defines": [],
             "compilerPath": "/usr/bin/clang",
