@@ -6,7 +6,6 @@
 #include <QString>
 
 
-
 namespace cu = canutils;
 
 CanMaster::CanMaster(QWidget *parent): QMainWindow(parent), ui(new Ui::CanMaster){
@@ -14,18 +13,47 @@ CanMaster::CanMaster(QWidget *parent): QMainWindow(parent), ui(new Ui::CanMaster
     createMenuBar();
 
     QListView *lv = ui->lvData;
-    QTableView *tv = ui->tvData;
+    configLv(lv);
 
-    model = new QStringListModel(this);
-    QStringList list {};
-    model->setStringList(list);
-    lv->setModel(model);
-    lv->setFont(QFont("Courier", 12));
+    QTableView *tv = ui->tvData;
+    configTv(tv);
+
+    connectCan();
+}
+
+
+void CanMaster::configTv(QTableView *tv) noexcept{
+    constexpr int rowHeight {10};
+    constexpr int colWidth1 {90};
+    constexpr int colWidth2 {50};
+    constexpr int colWidth3 {10};
+    constexpr int colWidth4 {200};
 
     tableModel = new TableModel(this);
     tv->setModel(tableModel);
+    tv->setEditTriggers(QAbstractItemView::NoEditTriggers);
+    tv->setFont(QFont("Courier", 10));
 
-    connectCan();
+    tv->setColumnWidth(0, colWidth1);
+    tv->setColumnWidth(1, colWidth2);
+    tv->setColumnWidth(2, colWidth3);
+    tv->setColumnWidth(3, colWidth4);
+
+    QHeaderView *verticalHeader = tv->verticalHeader();
+    verticalHeader->setSectionResizeMode(QHeaderView::Fixed);
+    verticalHeader->setDefaultSectionSize(rowHeight);
+
+    //tv->setGridStyle(Qt::PenStyle::)
+}
+
+
+void CanMaster::configLv(QListView *lv) noexcept{
+    model = new QStringListModel(this);
+    QStringList list {};
+    model->setStringList(list);
+    
+    lv->setModel(model);
+    lv->setFont(QFont("Courier", 10));
 }
 
 
@@ -35,7 +63,8 @@ CanMaster::~CanMaster(){
     *pRunSniff = 0;
 }
 
-void CanMaster::updateLvData(){
+
+void CanMaster::updateUi(){
     QStringList list = model->stringList();
     QCanBusFrame *frame  = new QCanBusFrame();
     while(pDev->framesAvailable()){
@@ -44,10 +73,9 @@ void CanMaster::updateLvData(){
         tableModel->append(frame);
     }
 
-
-
     model->setStringList(list);
     ui->lvData->scrollToBottom();
+    ui->tvData->scrollToBottom();
 }
 
 
@@ -65,7 +93,7 @@ void CanMaster::connectCan() noexcept{
    else
        pDev->connectDevice();
 
-   connect(pDev, SIGNAL(framesReceived()), this, SLOT(updateLvData()));
+   connect(pDev, SIGNAL(framesReceived()), this, SLOT(updateUi()));
 
    // get available interfaces with availableDevices() to choice interface
 }

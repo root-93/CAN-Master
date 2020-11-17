@@ -2,16 +2,9 @@
 #define TABLEMODEL_H
 #include <QAbstractTableModel>
 #include <QCanBus>
+#include <QDateTime>
 #include "../inc/Qt_global.h"
 
-// struct CanFrame{
-//         // adding new member update columnCount func
-//         int id;
-
-//         bool operator==(const CanFrame &other) const noexcept{
-//             return id == other.id;
-//         }
-// };
 
 class TableModel : public QAbstractTableModel{
         Q_OBJECT
@@ -27,11 +20,13 @@ class TableModel : public QAbstractTableModel{
         bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
         bool insertRows(int position, int rows, const QModelIndex &index = QModelIndex()) override;
         bool removeRows(int position, int rows, const QModelIndex &index = QModelIndex()) override;
-        bool append(const QCanBusFrame *frame);
+        void append(const QCanBusFrame *frame);
         const QVector<QCanBusFrame>& getFrames() const;
 
     private:
         QVector<QCanBusFrame> frames;
+        QString toHexString(qint32 val)const noexcept;
+        QByteArray formatData(QByteArray arr)const noexcept;
 };
 
 #endif // TABLEMODEL_H

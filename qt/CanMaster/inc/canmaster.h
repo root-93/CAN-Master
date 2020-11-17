@@ -5,10 +5,12 @@
 #include <QActionGroup>
 #include <QStringListModel>
 #include <QPointer>
-#include "linux/can.h"
 #include <QVector>
 #include <QCanBus>
-#include "../inc/TableModel.hpp"
+#include <QTableView>
+#include <QListView>
+#include "TableModel.hpp"
+#include "linux/can.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class CanMaster; }
@@ -28,16 +30,12 @@ class CanMaster : public QMainWindow
         void foo(){}
         void canGen();
         void canSniffer();
-        void updateLvData();
+        void updateUi();
 
     private:
         Ui::CanMaster *ui = nullptr;
         QStringListModel *model = nullptr;
         TableModel *tableModel = nullptr;
-
-        void createMenuBar() noexcept;
-        void connectCan() noexcept;
-
         int* pRunGen = new int;
         int* pRunSniff = new int;
         QAction *pCanGenAction = nullptr;
@@ -47,18 +45,9 @@ class CanMaster : public QMainWindow
         QString errorString;
         QPointer<QCanBusDevice> pDev = nullptr;
 
-
-        struct snif {
-            int flags;
-            long hold;
-            long timeout;
-            struct timeval laststamp;
-            struct timeval currstamp;
-            struct can_frame last;
-            struct can_frame current;
-            struct can_frame marker;
-            struct can_frame notch;
-        };
-
+        void createMenuBar() noexcept;
+        void connectCan() noexcept;
+        void configTv(QTableView *tv) noexcept;
+        void configLv(QListView *lv) noexcept;
 };
 #endif // CANMASTER_H

@@ -26,7 +26,7 @@ class CanMaster : public QMainWindow
         void foo(){}
         void canGen();
         void canSniffer();
-        void updateLvData();
+        void updateUi();
 
     private slots:
         void on_pushButton_clicked();

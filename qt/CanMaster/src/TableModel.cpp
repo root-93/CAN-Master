@@ -1,4 +1,4 @@
-#include "../inc/TableModel.hpp"
+#include "TableModel.hpp"
 
 TableModel::TableModel(QObject *parent) : QAbstractTableModel(parent){}
 
@@ -18,6 +18,8 @@ int TableModel::columnCount(const QModelIndex &parent)const {
 
 
 QVariant TableModel::data(const QModelIndex &index, int role)const {
+    static long long mSec;
+
     if(!index.isValid())
         return QVariant();
 
@@ -29,19 +31,36 @@ QVariant TableModel::data(const QModelIndex &index, int role)const {
 
         switch(index.column()){
             case 0:
-                return frame.timeStamp().microSeconds();
+                mSec = frame.timeStamp().microSeconds();
+                return QDateTime::fromMSecsSinceEpoch(mSec).toString("mm:ss:zzz");
             case 1:
-                return frame.payload().toHex();
+                return frame.frameType();
             case 2:
-                return frame.frameId();
+                return toHexString(frame.frameId());
             case 3:
-                return frame.toString();
+                
+                return formatData(frame.payload());
             default:
                 break;
         }
     }
 
     return QVariant();
+}
+
+
+
+inline QString TableModel::toHexString(const qint32 val)const noexcept{
+    return QString("%1").arg(val, 3, 16, QLatin1Char('0')).toUpper();
+}
+
+
+inline QByteArray TableModel::formatData(QByteArray arr)const noexcept{
+    arr = arr.toHex().toUpper();
+    for (int i = (arr.size() - 2); i>=2 ; i-=2) {
+        arr.insert(i, QByteArray(" "));
+    }
+    return arr;
 }
 
 
@@ -53,16 +72,16 @@ QVariant TableModel::headerData(int section, Qt::Orientation orientation, int ro
         switch (section)
         {
         case 0:
-            return tr("timeStamp");
+            return tr("TimeStamp");
             break;
         case 1:
-        return tr("payload");
+        return tr("Type");
             break;
         case 2:
             return tr("ID");
             break;                
         case 3:
-            return tr("frame");
+            return tr("Data");
             break;
         default:
             break;
@@ -145,16 +164,17 @@ const QVector<QCanBusFrame>& TableModel::getFrames()const {
     return frames;
 }
 
-bool TableModel::append(const QCanBusFrame *frame){
+
+void TableModel::append(const QCanBusFrame *frame){
     int rowNumber = rowCount(QModelIndex());
     insertRow(rowNumber);
     QVariant v;
     v.setValue(*frame);
 
-    for(int i = 0, columns = columnCount(QModelIndex()) ; i < columns ; i++){
+    int columns = columnCount(QModelIndex());
+    for(int i = 0; i < columns ; i++){
         QModelIndex index = this->index(rowNumber, i, QModelIndex());
-        this->setData(index, v, Qt::EditRole);
+        this->setData(index, v);
     }
-
-    return true;
 }
+
