@@ -178,3 +178,9 @@ void TableModel::append(const QCanBusFrame *frame){
     }
 }
 
+
+void TableModel::clear(){
+    removeRows(0, rowCount(QModelIndex()));
+}
+
+

@@ -8,29 +8,26 @@
 
 namespace cu = canutils;
 
-CanMaster::CanMaster(QWidget *parent): QMainWindow(parent), ui(new Ui::CanMaster){
-    ui->setupUi(this);
+CanMaster::CanMaster(QWidget *parent): QMainWindow(parent), _ui(new Ui::CanMaster){
+    _ui->setupUi(this);
     createMenuBar();
-
-    QListView *lv = ui->lvData;
-    configLv(lv);
-
-    QTableView *tv = ui->tvData;
-    configTv(tv);
-
+    configLv();
+    configTv();
     connectCan();
 }
 
 
-void CanMaster::configTv(QTableView *tv) noexcept{
+void CanMaster::configTv() noexcept{
+    QTableView *tv = _ui->tvData;
+
     constexpr int rowHeight {10};
     constexpr int colWidth1 {90};
     constexpr int colWidth2 {50};
     constexpr int colWidth3 {10};
     constexpr int colWidth4 {200};
 
-    tableModel = new TableModel(this);
-    tv->setModel(tableModel);
+    _pTableModel = new TableModel(this);
+    tv->setModel(_pTableModel);
     tv->setEditTriggers(QAbstractItemView::NoEditTriggers);
     tv->setFont(QFont("Courier", 10));
 
@@ -47,35 +44,37 @@ void CanMaster::configTv(QTableView *tv) noexcept{
 }
 
 
-void CanMaster::configLv(QListView *lv) noexcept{
-    model = new QStringListModel(this);
-    QStringList list {};
-    model->setStringList(list);
+void CanMaster::configLv() noexcept{
+    QListView *lv = _ui->lvData;
     
-    lv->setModel(model);
+    _pModel = new QStringListModel(this);
+    QStringList list {};
+    _pModel->setStringList(list);
+    
+    lv->setModel(_pModel);
     lv->setFont(QFont("Courier", 10));
 }
 
 
 CanMaster::~CanMaster(){
-    delete ui;
-    *pRunGen = 0;
-    *pRunSniff = 0;
+    delete _ui;
+    *_pRunGen = 0;
+    *_pRunSniff = 0;
 }
 
 
 void CanMaster::updateUi(){
-    QStringList list = model->stringList();
+    QStringList list = _pModel->stringList();
     QCanBusFrame *frame  = new QCanBusFrame();
-    while(pDev->framesAvailable()){
-        *frame = pDev->readFrame();
+    while(_pDev->framesAvailable()){
+        *frame = _pDev->readFrame();
         list.append((*frame).toString());
-        tableModel->append(frame);
+        _pTableModel->append(frame);
     }
 
-    model->setStringList(list);
-    ui->lvData->scrollToBottom();
-    ui->tvData->scrollToBottom();
+    _pModel->setStringList(list);
+    _ui->lvData->scrollToBottom();
+    _ui->tvData->scrollToBottom();
 }
 
 
@@ -83,17 +82,17 @@ void CanMaster::connectCan() noexcept{
     if(!QCanBus::instance()->plugins().contains(QStringLiteral("socketcan")))
         qFatal("Qcab bus doesn't provide the desired plugin \"socketcan\"");
 
-    pDev = QCanBus::instance()->createDevice(
+    _pDev = QCanBus::instance()->createDevice(
                                      QStringLiteral("socketcan"),
                                      QStringLiteral("vcan0"),
-                                     &errorString);
+                                     &_errorString);
 
-   if(!pDev)
-       qDebug() << errorString;
+   if(!_pDev)
+       qDebug() << _errorString;
    else
-       pDev->connectDevice();
+       _pDev->connectDevice();
 
-   connect(pDev, SIGNAL(framesReceived()), this, SLOT(updateUi()));
+   connect(_pDev, SIGNAL(framesReceived()), this, SLOT(updateUi()));
 
    // get available interfaces with availableDevices() to choice interface
 }
@@ -105,10 +104,10 @@ void CanMaster::createMenuBar() noexcept{
     QMenu* menuTools = new QMenu(tr("Tools"), this);
     QMenu* menuHelp = new QMenu(tr("Help"), this);
 
-    ui->menubar->addMenu(menuProject);
-    ui->menubar->addMenu(menuCan);
-    ui->menubar->addMenu(menuTools);
-    ui->menubar->addMenu(menuHelp);
+    _ui->menubar->addMenu(menuProject);
+    _ui->menubar->addMenu(menuCan);
+    _ui->menubar->addMenu(menuTools);
+    _ui->menubar->addMenu(menuHelp);
 
     menuProject->addAction(tr("new"), this, SLOT(foo()), tr("Ctrl+N"));
     menuProject->addAction(tr("open"), this, SLOT(foo()), tr("Ctrl+O"));
@@ -116,17 +115,17 @@ void CanMaster::createMenuBar() noexcept{
     menuProject->addAction(tr("save as"), this, SLOT(foo()), tr("Ctrl+Shift+S"));
     menuProject->addAction(tr("exit"), this, SLOT(foo()));
 
-    pCanGenAction = new QAction(tr("gen"), this);
-    pCanGenAction->setCheckable(true);
-    connect(pCanGenAction, SIGNAL(triggered()), this, SLOT(canGen()));
-    menuCan->addAction(pCanGenAction);
+    _pCanGenAction = new QAction(tr("gen"), this);
+    _pCanGenAction->setCheckable(true);
+    connect(_pCanGenAction, SIGNAL(triggered()), this, SLOT(canGen()));
+    menuCan->addAction(_pCanGenAction);
 
     menuCan->addAction(tr("dump"), this, SLOT(foo()));
 
-    pCanSniffAction = new QAction(tr("sniff"), this);
-    pCanSniffAction->setCheckable(true);
-    connect(pCanSniffAction, SIGNAL(triggered()), this, SLOT(canSniffer()));
-    menuCan->addAction(pCanSniffAction);
+    _pCanSniffAction = new QAction(tr("sniff"), this);
+    _pCanSniffAction->setCheckable(true);
+    // connect(_pCanSniffAction, SIGNAL(triggered()), this, SLOT(canSniffer()));
+    menuCan->addAction(_pCanSniffAction);
 
     menuCan->addAction(tr("player"), this, SLOT(foo()));
     menuCan->addAction(tr("send"), this, SLOT(foo()));
@@ -137,31 +136,31 @@ void CanMaster::createMenuBar() noexcept{
 }
 
 void CanMaster::canGen(){
-    if(!pCanGenAction->isChecked()){
-        *pRunGen = 0;
+    if(!_pCanGenAction->isChecked()){
+        *_pRunGen = 0;
     }
     else{
-        *pRunGen = 1;
+        *_pRunGen = 1;
 
-        params[0] = const_cast<char *>("canGen");
-        params[1] = const_cast<char *>("vcan0");
+        _params[0] = const_cast<char *>("canGen");
+        _params[1] = const_cast<char *>("vcan0");
 
-        char **ppCanGenArg = params;
-        QtConcurrent::run(cu::canGen, 2, ppCanGenArg, pRunGen);
+        char **ppCanGenArg = _params;
+        QtConcurrent::run(cu::canGen, 2, ppCanGenArg, _pRunGen);
     }
 }
 
-void CanMaster::canSniffer(){
-    if(!pCanGenAction->isChecked()){
-        *pRunSniff = 0;
-    }
-    else{
-        *pRunSniff = 1;
+// void CanMaster::canSniffer(){
+//     if(!_pCanGenAction->isChecked()){
+//         *_pRunSniff = 0;
+//     }
+//     else{
+//         *_pRunSniff = 1;
 
-        params[0] = const_cast<char *>("canSniffer");
-        params[1] = const_cast<char *>("vcan0");
+//         _params[0] = const_cast<char *>("canSniffer");
+//         _params[1] = const_cast<char *>("vcan0");
 
-        char **ppCanGenArg = params;
-        QtConcurrent::run(cu::canSniffer, 2, ppCanGenArg, pRunSniff, (void**)&pSniffBuf);
-    }
-}
+//         char **ppCanGenArg = _params;
+//         //QtConcurrent::run(cu::canSniffer, 2, ppCanGenArg, _pRunSniff, (void**)&_pSniffBuf);
+//     }
+// }

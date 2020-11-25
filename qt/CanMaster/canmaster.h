@@ -32,20 +32,20 @@ class CanMaster : public QMainWindow
         void on_pushButton_clicked();
 
     private:
-        Ui::CanMaster *ui;
-        QStringListModel *model;
+        Ui::CanMaster *_ui;
+        QStringListModel *_pModel;
 
         void createMenuBar() noexcept;
         void connectCan() noexcept;
 
-        int *pRunGen = new int;
-        int *pRunSniff = new int;
+        int *_pRunGen = new int;
+        int *_pRunSniff = new int;
         QPointer<QAction> pCanGenAction = nullptr;
         QPointer<QAction> pCanSniffAction = nullptr;
         char *params[3];
-        snif *pSniffBuf = nullptr;
-        QString errorString;
-        QPointer<QCanBusDevice> pDev = nullptr;
+        snif *_pSniffBuf = nullptr;
+        QString _errorString;
+        QPointer<QCanBusDevice> _pDev = nullptr;
 
         struct snif {
             int flags;

@@ -6,9 +6,7 @@
 class CommandDefault : public Command {
     public:
                         CommandDefault(SubMenu* pParent) : _pParent{pParent} {}
-        void            execute()const override {
-                            
-                        }
+        void            execute()const override {}
 
         void            execute([[maybe_unused]]char key)const override {}
 

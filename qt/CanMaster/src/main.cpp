@@ -11,16 +11,10 @@
 void consoleView();
 int GUI(int argc, char *argv[]);
 
-//int wait = 1;
-//void signalHandler([[maybe_unused]]int sig){
-//    wait = 0;
-//}
-
 
 int main(int argc, char *argv[]){
-    //signal(SIGUSR1, signalHandler);
     volatile int a = system("/home/root93/Repo/C++/CAN\\ Master/qt/CanMaster/bash/setvcan0.sh");
-    //while(wait){sleep(1);}
+
     if (a != 0) {
         std::exit(EXIT_FAILURE);
     }
@@ -53,13 +47,13 @@ void consoleView(){
 
     MenuContent mC;
     Controler controler;
-    Menu menu(std::move(mC));
+    Menu* menu = Menu::instance(std::move(mC));
 
     char kbCode;
     while (true){
-        menu.show();
+        menu->show();
         kbCode = getch();
-        menu.execute(kbCode);
+        menu->execute(kbCode);
 
         if(kbCode == 'e')
             break;

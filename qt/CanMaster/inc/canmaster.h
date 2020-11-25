@@ -19,35 +19,33 @@ QT_END_NAMESPACE
 class CanMaster : public QMainWindow
 {
         Q_OBJECT
-        struct snif;
         enum {start,stop};
 
     public:
-        CanMaster(QWidget *parent = nullptr);
-        ~CanMaster();
+                                CanMaster(QWidget *parent = nullptr);
+                                ~CanMaster();
 
     public slots:
-        void foo(){}
-        void canGen();
-        void canSniffer();
-        void updateUi();
+        void                    foo(){}
+        void                    canGen();
+        // void                    canSniffer();
+        void                    updateUi();
 
     private:
-        Ui::CanMaster *ui = nullptr;
-        QStringListModel *model = nullptr;
-        TableModel *tableModel = nullptr;
-        int* pRunGen = new int;
-        int* pRunSniff = new int;
-        QAction *pCanGenAction = nullptr;
-        QAction *pCanSniffAction = nullptr;
-        char *params[3];
-        snif *pSniffBuf = nullptr;
-        QString errorString;
-        QPointer<QCanBusDevice> pDev = nullptr;
+        Ui::CanMaster           *_ui = nullptr;
+        QStringListModel        *_pModel = nullptr;
+        TableModel              *_pTableModel = nullptr;
+        int                     *_pRunGen = new int;
+        int                     *_pRunSniff = new int;
+        QAction                 *_pCanGenAction = nullptr;
+        QAction                 *_pCanSniffAction = nullptr;
+        char                    *_params[3];
+        QString                 _errorString;
+        QPointer<QCanBusDevice> _pDev = nullptr;
 
-        void createMenuBar() noexcept;
-        void connectCan() noexcept;
-        void configTv(QTableView *tv) noexcept;
-        void configLv(QListView *lv) noexcept;
+        void                    createMenuBar() noexcept;
+        void                    connectCan() noexcept;
+        void                    configTv() noexcept;
+        void                    configLv() noexcept;
 };
 #endif // CANMASTER_H

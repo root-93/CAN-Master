@@ -23,7 +23,7 @@ class BaseMenu{
         virtual BaseMenu*   getSelectedCellP() = 0;
 
     protected:
-                            BaseMenu(unsigned int ID, std::string name, BaseMenu* pParent = nullptr)
+                            BaseMenu(unsigned int ID, std::string name, BaseMenu *pParent = nullptr)
                                 : _ID{ID}, _name{name}, _pParent{pParent} {};
 
 
