@@ -10,7 +10,7 @@ class TableModel : public QAbstractTableModel{
         Q_OBJECT
     public:
                         TableModel(QObject *patern = nullptr);
-                        TableModel(const QVector<QCanBusFrame> &frames, QObject *parent = nullptr);
+                        TableModel(QVector<QCanBusFrame> *frames, QObject *parent = nullptr);
 
         int             rowCount(const QModelIndex &parent) const override;
         int             columnCount(const QModelIndex &parent)const override;
@@ -22,10 +22,12 @@ class TableModel : public QAbstractTableModel{
         bool            removeRows(int position, int rows, const QModelIndex &index = QModelIndex()) override;
         void            append(const QCanBusFrame *frame) noexcept;
         void            clear() noexcept;
-        const QVector<QCanBusFrame>& getFrames() const;
+
+    public slots:
+        void            update()noexcept;
 
     private:
-        QVector<QCanBusFrame> frames;
+        QVector<QCanBusFrame> *_pFrames;
         QString         toHexString(qint32 val)const noexcept;
         QByteArray      formatData(QByteArray arr)const noexcept;
         

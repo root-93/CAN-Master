@@ -6,11 +6,12 @@
 
 class Filter{
     public:
-        virtual void    checkFrame(const QCanBusFrame &frame) noexcept = 0;
+        virtual bool    checkFrame(const QCanBusFrame &frame) noexcept = 0;
+        virtual void    saveFrame(const QCanBusFrame &frame) noexcept = 0;
+        virtual         ~Filter() = default;
 
     protected:
                         Filter(Stack *stack) : _pStack{stack} {}
-        virtual         ~Filter() = default;
         
         Stack           *_pStack;
 };

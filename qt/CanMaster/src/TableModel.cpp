@@ -3,12 +3,12 @@
 TableModel::TableModel(QObject *parent) : QAbstractTableModel(parent){}
 
 
-TableModel::TableModel(const QVector<QCanBusFrame> &frames, QObject *parent) 
-    : QAbstractTableModel(parent), frames{frames} {}
+TableModel::TableModel(QVector<QCanBusFrame> *frames, QObject *parent)
+    : QAbstractTableModel(parent), _pFrames{frames} {}
 
 
 int TableModel::rowCount(const QModelIndex &parent) const{
-    return parent.isValid() ? 0 : frames.size();
+    return parent.isValid() ? 0 : (*_pFrames).size();
 }
 
 
@@ -23,11 +23,11 @@ QVariant TableModel::data(const QModelIndex &index, int role)const {
     if(!index.isValid())
         return QVariant();
 
-    if(index.row() >= frames.size() || index.row() < 0)
+    if(index.row() >= (*_pFrames).size() || index.row() < 0)
         return QVariant();
 
     if(role == Qt::DisplayRole){
-        const auto &frame = frames.at(index.row());
+        const auto &frame = (*_pFrames).at(index.row());
 
         switch(index.column()){
             case 0:
@@ -96,8 +96,8 @@ bool TableModel::insertRows(int position, int rows, const QModelIndex &index){
     Q_UNUSED (index);
     beginInsertRows(QModelIndex(), position, position + rows - 1);
 
-    for (int row = 0 ; row < rows ; ++row)
-        frames.insert(position, QCanBusFrame());
+//    for (int row = 0 ; row < rows ; ++row)
+//        (*_pFrames).insert(position, QCanBusFrame());
     
     endInsertRows();
     return true;
@@ -108,8 +108,8 @@ bool TableModel::removeRows(int position, int rows, const QModelIndex &index){
     Q_UNUSED (index);
     beginRemoveRows(QModelIndex(), position, position + rows - 1);
 
-    for (int row = 0 ; row < rows ; ++row)
-        frames.removeAt(position);
+//    for (int row = 0 ; row < rows ; ++row)
+//        (*_pFrames).removeAt(position);
     
     endRemoveRows();
     return true;
@@ -119,7 +119,7 @@ bool TableModel::removeRows(int position, int rows, const QModelIndex &index){
 bool TableModel::setData(const QModelIndex &index, const QVariant &value, int role){
     if(index.isValid() && role == Qt::EditRole){
         const int row = index.row();
-        auto frame = frames.value(row);
+        auto frame = (*_pFrames).value(row);
         QCanBusFrame newFrame;
 
         Q_ASSERT(value.canConvert<QCanBusFrame>());
@@ -143,7 +143,7 @@ bool TableModel::setData(const QModelIndex &index, const QVariant &value, int ro
             return false;
         }
 
-        frames.replace(row, frame);
+        (*_pFrames).replace(row, frame);
         emit dataChanged(index, index, {Qt::DisplayRole, Qt::EditRole});
 
         return true;
@@ -160,12 +160,7 @@ Qt::ItemFlags TableModel::flags(const QModelIndex &index)const {
 }
 
 
-const QVector<QCanBusFrame>& TableModel::getFrames()const {
-    return frames;
-}
-
-
-void TableModel::append(const QCanBusFrame *frame){
+void TableModel::append(const QCanBusFrame *frame) noexcept{
     int rowNumber = rowCount(QModelIndex());
     insertRow(rowNumber);
     QVariant v;
@@ -179,8 +174,12 @@ void TableModel::append(const QCanBusFrame *frame){
 }
 
 
-void TableModel::clear(){
+void TableModel::clear() noexcept{
     removeRows(0, rowCount(QModelIndex()));
 }
 
+
+void TableModel::update() noexcept{
+
+}
 

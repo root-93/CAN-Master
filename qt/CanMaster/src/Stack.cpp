@@ -2,18 +2,17 @@
 
 using namespace std;
 
-void Stack::updateFrame(const QCanBusFrame &frame){
-    auto itr {find(frame)};
-    
-    if(itr == _frameList.end())
-        addFrame(frame);
-    else{
-        auto index = std::distance(_frameList.cbegin(), itr);
-        updateFrame(index, frame);
-    }
+bool operator==(QCanBusFrame first, QCanBusFrame secound){
+    return first.frameId() == secound.frameId();
 }
 
-
-
-
-
+void Stack::updateFrame(const QCanBusFrame &frame){
+    //auto itr {find(frame)};
+    
+    if(_frameList.contains(frame))
+        addFrame(frame);
+    else{
+        auto index = _frameList.indexOf(frame);
+        _frameList.replace(index, frame);
+    }
+}

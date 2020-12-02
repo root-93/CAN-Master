@@ -12,6 +12,9 @@ SOURCES += \
     src/CommandKey.cpp \
     src/CompositeMenu.cpp \
     src/Controler.cpp \
+    src/FilterDump.cpp \
+    src/FilterSniff.cpp \
+    src/Stack.cpp \
     src/SubMenu.cpp \
     src/TableModel.cpp \
     src/UnitTest.cpp \
@@ -25,32 +28,36 @@ SOURCES += \
     src/canmaster.cpp
 
 HEADERS += \
-    inc/BaseMenu.hpp \
+    inc/Filter.hpp \
+    inc/FilterDump.hpp \
+    inc/FilterSniff.hpp \
+    inc/MenuCli/BaseMenu.hpp \
     inc/CanUtils.hpp \
-    inc/Command.hpp \
-    inc/CommandBack.hpp \
-    inc/CommandDefault.hpp \
-    inc/CommandKey.hpp \
-    inc/CompositeMenu.hpp \
-    inc/Controler.hpp \
+    inc/MenuCli/Command.hpp \
+    inc/MenuCli/CommandBack.hpp \
+    inc/MenuCli/CommandDefault.hpp \
+    inc/MenuCli/CommandKey.hpp \
+    inc/MenuCli/CompositeMenu.hpp \
+    inc/MenuCli/Controler.hpp \
     inc/Global.hpp \
-    inc/LeafMenu.hpp \
-    inc/MenuContent.hpp \
-    inc/MenuItem.hpp \
-    inc/SubMenu.hpp \
+    inc/MenuCli/LeafMenu.hpp \
+    inc/MenuCli/MenuContent.hpp \
+    inc/MenuCli/MenuItem.hpp \
+    inc/MenuCli/SubMenu.hpp \
+    inc/Stack.hpp \
     inc/TableModel.hpp \
     inc/UnitTest.h \
-    inc/ViewActionData.hpp \
+    inc/MenuCli/ViewActionData.hpp \
     inc/canmaster.h \
     inc/lib.h \
     inc/linux/can.h \
     inc/terminal.h \
     inc/Qt_global.h
 
-INCLUDEPATH += $$PWD/inc
-
 FORMS += \
     forms/canmaster.ui
+
+INCLUDEPATH += $$PWD/inc/MenuCli $$PWD/inc
 
 LIBS += -L/usr/lib -lncurses -lboost_unit_test_framework
 

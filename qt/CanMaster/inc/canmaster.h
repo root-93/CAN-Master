@@ -11,6 +11,10 @@
 #include <QListView>
 #include "TableModel.hpp"
 #include "linux/can.h"
+#include "FilterDump.hpp"
+#include "FilterSniff.hpp"
+#include "Stack.hpp"
+
 
 QT_BEGIN_NAMESPACE
 namespace Ui { class CanMaster; }
@@ -25,27 +29,36 @@ class CanMaster : public QMainWindow
                                 CanMaster(QWidget *parent = nullptr);
                                 ~CanMaster();
 
-    public slots:
+    private slots:
         void                    foo(){}
         void                    canGen();
-        // void                    canSniffer();
         void                    updateUi();
+        void                    on_btnConnect_clicked();
+        void                    on_btnGen_clicked();
+        void                    on_btnDump_clicked();       
+        void                    on_btnSniff_clicked();
 
     private:
-        Ui::CanMaster           *_ui = nullptr;
-        QStringListModel        *_pModel = nullptr;
-        TableModel              *_pTableModel = nullptr;
-        int                     *_pRunGen = new int;
-        int                     *_pRunSniff = new int;
-        QAction                 *_pCanGenAction = nullptr;
-        QAction                 *_pCanSniffAction = nullptr;
+        Ui::CanMaster           *_ui {};
+        QStringListModel        *_pModel {};
+        TableModel              *_pTableModel {};
+        int                     *_pRunGen {new int};
+        int                     *_pRunSniff {new int};
+        QAction                 *_pCanGenAction {};
+        QAction                 *_pCanSniffAction {};
         char                    *_params[3];
         QString                 _errorString;
-        QPointer<QCanBusDevice> _pDev = nullptr;
+        QPointer<QCanBusDevice> _pDev {};
+        const QString           plugin {"socketcan"};
+        QString                 _interface {"vcan0"};
+        Filter                  *_pFilter {};
+        Stack                   *_pStack {new Stack()};
 
         void                    createMenuBar() noexcept;
+        void                    createCanDev() noexcept;
         void                    connectCan() noexcept;
         void                    configTv() noexcept;
         void                    configLv() noexcept;
+        void                    configApp() noexcept;
 };
 #endif // CANMASTER_H

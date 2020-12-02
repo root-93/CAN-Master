@@ -10,10 +10,22 @@ namespace cu = canutils;
 
 CanMaster::CanMaster(QWidget *parent): QMainWindow(parent), _ui(new Ui::CanMaster){
     _ui->setupUi(this);
+    _pTableModel = new TableModel(_pStack->getFrames(), this);
+    _pFilter = FilterDump::instacne(_pStack);
     createMenuBar();
-    configLv();
     configTv();
-    connectCan();
+    configLv();
+    configApp();
+
+    auto canDevList {QCanBus::instance()->availableDevices(plugin)};
+    for (auto &&s : canDevList){
+        _ui->cbInterface->addItem(s.name());
+    }
+}
+
+
+void CanMaster::configApp() noexcept{
+
 }
 
 
@@ -26,7 +38,6 @@ void CanMaster::configTv() noexcept{
     constexpr int colWidth3 {10};
     constexpr int colWidth4 {200};
 
-    _pTableModel = new TableModel(this);
     tv->setModel(_pTableModel);
     tv->setEditTriggers(QAbstractItemView::NoEditTriggers);
     tv->setFont(QFont("Courier", 10));
@@ -39,19 +50,13 @@ void CanMaster::configTv() noexcept{
     QHeaderView *verticalHeader = tv->verticalHeader();
     verticalHeader->setSectionResizeMode(QHeaderView::Fixed);
     verticalHeader->setDefaultSectionSize(rowHeight);
-
-    //tv->setGridStyle(Qt::PenStyle::)
 }
 
 
 void CanMaster::configLv() noexcept{
     QListView *lv = _ui->lvData;
     
-    _pModel = new QStringListModel(this);
-    QStringList list {};
-    _pModel->setStringList(list);
-    
-    lv->setModel(_pModel);
+    lv->setModel(_pTableModel);
     lv->setFont(QFont("Courier", 10));
 }
 
@@ -64,37 +69,44 @@ CanMaster::~CanMaster(){
 
 
 void CanMaster::updateUi(){
-    QStringList list = _pModel->stringList();
-    QCanBusFrame *frame  = new QCanBusFrame();
     while(_pDev->framesAvailable()){
-        *frame = _pDev->readFrame();
-        list.append((*frame).toString());
-        _pTableModel->append(frame);
-    }
+        auto frame = _pDev->readFrame();
+        if(_pFilter->checkFrame(frame)){
+            //_pFilter->saveFrame(frame);
+            _pTableModel->append(&frame);
+        }
 
-    _pModel->setStringList(list);
+    }
     _ui->lvData->scrollToBottom();
     _ui->tvData->scrollToBottom();
+
+    _ui->lcdNum1->display(_pStack->size());
 }
 
 
 void CanMaster::connectCan() noexcept{
+    _pDev->connectDevice();
+}
+
+
+void CanMaster::createCanDev() noexcept{
     if(!QCanBus::instance()->plugins().contains(QStringLiteral("socketcan")))
-        qFatal("Qcab bus doesn't provide the desired plugin \"socketcan\"");
+            qFatal("Qcab bus doesn't provide the desired plugin \"socketcan\"");
+
+    if(_ui->cbInterface->currentText() != "")
+       _interface = _ui->cbInterface->currentText();
+    else
+        qDebug() << "Empty interface list !";
 
     _pDev = QCanBus::instance()->createDevice(
-                                     QStringLiteral("socketcan"),
-                                     QStringLiteral("vcan0"),
-                                     &_errorString);
+                                    plugin,
+                                    _interface,
+                                    &_errorString);
 
-   if(!_pDev)
-       qDebug() << _errorString;
-   else
-       _pDev->connectDevice();
+    if(!_pDev)
+        qDebug() << _errorString;
 
-   connect(_pDev, SIGNAL(framesReceived()), this, SLOT(updateUi()));
-
-   // get available interfaces with availableDevices() to choice interface
+    connect(_pDev, SIGNAL(framesReceived()), this, SLOT(updateUi()));
 }
 
 
@@ -135,32 +147,43 @@ void CanMaster::createMenuBar() noexcept{
     menuHelp->addAction(tr("Nobody help you :P"), this, SLOT(foo()));
 }
 
+
 void CanMaster::canGen(){
-    if(!_pCanGenAction->isChecked()){
+    if(*_pRunGen){
         *_pRunGen = 0;
     }
     else{
         *_pRunGen = 1;
 
         _params[0] = const_cast<char *>("canGen");
-        _params[1] = const_cast<char *>("vcan0");
+        _params[1] = const_cast<char *>(_interface.toStdString().c_str());
 
         char **ppCanGenArg = _params;
         QtConcurrent::run(cu::canGen, 2, ppCanGenArg, _pRunGen);
     }
 }
 
-// void CanMaster::canSniffer(){
-//     if(!_pCanGenAction->isChecked()){
-//         *_pRunSniff = 0;
-//     }
-//     else{
-//         *_pRunSniff = 1;
 
-//         _params[0] = const_cast<char *>("canSniffer");
-//         _params[1] = const_cast<char *>("vcan0");
+void CanMaster::on_btnConnect_clicked(){
+    if(!_pDev)
+        createCanDev();
+    connectCan();
+}
 
-//         char **ppCanGenArg = _params;
-//         //QtConcurrent::run(cu::canSniffer, 2, ppCanGenArg, _pRunSniff, (void**)&_pSniffBuf);
-//     }
-// }
+
+void CanMaster::on_btnGen_clicked(){
+    canGen();
+}
+
+
+void CanMaster::on_btnDump_clicked(){
+    _pStack->clearStack();
+    _pTableModel->removeRows(0, _pTableModel->rowCount(QModelIndex()));
+    _pFilter = FilterDump::instacne(_pStack);
+}
+
+void CanMaster::on_btnSniff_clicked(){
+    _pStack->clearStack();
+    _pTableModel->removeRows(0, _pTableModel->rowCount(QModelIndex()));
+    _pFilter = FilterSniff::instance(_pStack);
+}
