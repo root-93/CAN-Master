@@ -144,6 +144,7 @@ void sigterm(int __attribute__((unused)) signo)
 int canGen(int argc, char **argv, int *pR)
 {
     pRunning = pR;
+    optind = 1;
 
 	double gap = DEFAULT_GAP;
 	unsigned long burst_count = DEFAULT_BURST_COUNT;

@@ -4,28 +4,46 @@
 #include <qdebug.h>
 #include <QtConcurrent/qtconcurrentrun.h>
 #include <QString>
-
+#include <QCanBusDevice>
 
 namespace cu = canutils;
 
-CanMaster::CanMaster(QWidget *parent): QMainWindow(parent), _ui(new Ui::CanMaster){
+
+CanMaster::CanMaster(QWidget *parent)
+    : QMainWindow(parent), _ui(new Ui::CanMaster){
+
     _ui->setupUi(this);
     _pTableModel = new TableModel(_pStack->getFrames(), this);
     _pFilter = FilterDump::instacne(_pStack);
     createMenuBar();
     configTv();
     configLv();
-    configApp();
+    readAnaliableDevices();
+}
 
-    auto canDevList {QCanBus::instance()->availableDevices(plugin)};
+
+CanMaster::~CanMaster(){
+    delete _ui;
+    delete [] _pInterface;
+    _pDev->disconnectDevice();
+    *_pRunGen = 0;
+    *_pRunSniff = 0;
+}
+
+
+void CanMaster::readAnaliableDevices() noexcept{
+    auto canDevList {QCanBus::instance()->availableDevices(_plugin)};
     for (auto &&s : canDevList){
         _ui->cbInterface->addItem(s.name());
     }
 }
 
 
-void CanMaster::configApp() noexcept{
-
+void CanMaster::updateUi() noexcept{
+    _pTableModel->update();
+    _ui->lvData->scrollToBottom();
+    _ui->tvData->scrollToBottom();
+    _ui->lcdNum1->display(_pStack->size());
 }
 
 
@@ -61,31 +79,27 @@ void CanMaster::configLv() noexcept{
 }
 
 
-CanMaster::~CanMaster(){
-    delete _ui;
-    *_pRunGen = 0;
-    *_pRunSniff = 0;
-}
-
-
-void CanMaster::updateUi(){
-    while(_pDev->framesAvailable()){
-        auto frame = _pDev->readFrame();
-        if(_pFilter->checkFrame(frame)){
-            //_pFilter->saveFrame(frame);
-            _pTableModel->append(&frame);
+void CanMaster::readFrames() noexcept{
+    if(_pDev->framesAvailable()){
+        auto frameList = _pDev->readAllFrames();
+        for (auto frame : frameList) {
+            if(_pFilter->checkFrame(frame)){
+                _pFilter->saveFrame(frame);
+            }
         }
-
     }
-    _ui->lvData->scrollToBottom();
-    _ui->tvData->scrollToBottom();
 
-    _ui->lcdNum1->display(_pStack->size());
+    updateUi();
 }
 
 
-void CanMaster::connectCan() noexcept{
+void CanMaster::connectCanDevice() noexcept{
     _pDev->connectDevice();
+}
+
+
+void CanMaster::disconnectCanDevice() noexcept{
+    _pDev->disconnectDevice();
 }
 
 
@@ -93,20 +107,30 @@ void CanMaster::createCanDev() noexcept{
     if(!QCanBus::instance()->plugins().contains(QStringLiteral("socketcan")))
             qFatal("Qcab bus doesn't provide the desired plugin \"socketcan\"");
 
-    if(_ui->cbInterface->currentText() != "")
-       _interface = _ui->cbInterface->currentText();
-    else
-        qDebug() << "Empty interface list !";
+    updateInterfaceName();
 
     _pDev = QCanBus::instance()->createDevice(
-                                    plugin,
-                                    _interface,
-                                    &_errorString);
+                _plugin,
+                _pInterface,
+                &_errorString);
 
     if(!_pDev)
         qDebug() << _errorString;
 
-    connect(_pDev, SIGNAL(framesReceived()), this, SLOT(updateUi()));
+connect(_pDev, SIGNAL(framesReceived()), this, SLOT(readFrames()));
+}
+
+
+void CanMaster::updateInterfaceName() noexcept{
+    if(_ui->cbInterface->currentText() != ""){
+        QByteArray ba = _ui->cbInterface->currentText().toLatin1();
+        char *data {ba.data()};
+        delete[] _pInterface;
+        _pInterface = new char[ba.size() + 1];
+        for (int i{0}; (_pInterface[i] = *data++) ; i++) {}
+    }
+    else
+        qDebug() << "Empty interface list !";
 }
 
 
@@ -136,7 +160,6 @@ void CanMaster::createMenuBar() noexcept{
 
     _pCanSniffAction = new QAction(tr("sniff"), this);
     _pCanSniffAction->setCheckable(true);
-    // connect(_pCanSniffAction, SIGNAL(triggered()), this, SLOT(canSniffer()));
     menuCan->addAction(_pCanSniffAction);
 
     menuCan->addAction(tr("player"), this, SLOT(foo()));
@@ -148,30 +171,45 @@ void CanMaster::createMenuBar() noexcept{
 }
 
 
-void CanMaster::canGen(){
-    if(*_pRunGen){
-        *_pRunGen = 0;
-    }
-    else{
-        *_pRunGen = 1;
+void CanMaster::canGen() noexcept{
+    if(*_pRunGen ^= 1){
+        _ui->btnGen->setText("Stop simulatiom");
 
         _params[0] = const_cast<char *>("canGen");
-        _params[1] = const_cast<char *>(_interface.toStdString().c_str());
+        _params[1] = _pInterface;
+        _params[2] = const_cast<char *>("-g");
+        _params[3] = const_cast<char *>("500");
+        _params[4] = const_cast<char *>("-I");
+        _params[5] = const_cast<char *>("001");
 
         char **ppCanGenArg = _params;
-        QtConcurrent::run(cu::canGen, 2, ppCanGenArg, _pRunGen);
+        futureGen = QtConcurrent::run(cu::canGen, 6, ppCanGenArg, _pRunGen);
+    }
+    else{
+        _ui->btnGen->setText("Simulate data");
+        futureGen.waitForFinished();
     }
 }
 
-
 void CanMaster::on_btnConnect_clicked(){
+    using DevState = QCanBusDevice::CanBusDeviceState;
+
     if(!_pDev)
         createCanDev();
-    connectCan();
+    if(_pDev->state() == DevState::UnconnectedState){
+        createCanDev();
+        _ui->btnConnect->setText("Disconnect");
+        connectCanDevice();
+    }
+    else if(_pDev->state() == DevState::ConnectedState){
+        _ui->btnConnect->setText("Connect");
+        disconnectCanDevice();
+    }
 }
 
 
 void CanMaster::on_btnGen_clicked(){
+    _pCanGenAction->toggle();
     canGen();
 }
 
@@ -182,8 +220,14 @@ void CanMaster::on_btnDump_clicked(){
     _pFilter = FilterDump::instacne(_pStack);
 }
 
+
 void CanMaster::on_btnSniff_clicked(){
     _pStack->clearStack();
     _pTableModel->removeRows(0, _pTableModel->rowCount(QModelIndex()));
     _pFilter = FilterSniff::instance(_pStack);
+}
+
+
+void CanMaster::on_btnRefresh_clicked(){
+    readAnaliableDevices();
 }

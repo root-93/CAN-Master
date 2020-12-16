@@ -1,14 +1,11 @@
 #include "TableModel.hpp"
 
-TableModel::TableModel(QObject *parent) : QAbstractTableModel(parent){}
-
-
 TableModel::TableModel(QVector<QCanBusFrame> *frames, QObject *parent)
     : QAbstractTableModel(parent), _pFrames{frames} {}
 
 
 int TableModel::rowCount(const QModelIndex &parent) const{
-    return parent.isValid() ? 0 : (*_pFrames).size();
+    return parent.isValid() ? 0 : _rowCounter;
 }
 
 
@@ -95,10 +92,9 @@ QVariant TableModel::headerData(int section, Qt::Orientation orientation, int ro
 bool TableModel::insertRows(int position, int rows, const QModelIndex &index){
     Q_UNUSED (index);
     beginInsertRows(QModelIndex(), position, position + rows - 1);
-
-//    for (int row = 0 ; row < rows ; ++row)
-//        (*_pFrames).insert(position, QCanBusFrame());
-    
+    _rowCounter+=rows;
+    //for (int row = 0 ; row < rows ; ++row)
+    //      (*_pFrames).insert(position, QCanBusFrame());
     endInsertRows();
     return true;
 }
@@ -107,11 +103,12 @@ bool TableModel::insertRows(int position, int rows, const QModelIndex &index){
 bool TableModel::removeRows(int position, int rows, const QModelIndex &index){
     Q_UNUSED (index);
     beginRemoveRows(QModelIndex(), position, position + rows - 1);
-
-//    for (int row = 0 ; row < rows ; ++row)
+    //for (int row = 0 ; row < rows ; ++row)
+        //removeRow(row);
 //        (*_pFrames).removeAt(position);
-    
     endRemoveRows();
+    _rowCounter-=rows;
+
     return true;
 }
 
@@ -143,7 +140,7 @@ bool TableModel::setData(const QModelIndex &index, const QVariant &value, int ro
             return false;
         }
 
-        (*_pFrames).replace(row, frame);
+        //(*_pFrames).replace(row, frame);
         emit dataChanged(index, index, {Qt::DisplayRole, Qt::EditRole});
 
         return true;
@@ -180,6 +177,20 @@ void TableModel::clear() noexcept{
 
 
 void TableModel::update() noexcept{
+    //!it sucks :(, needs to be improve
+    clear();
+
+    for (auto &&s : *_pFrames) {
+        append(&s);
+    }
+
+//    for (int i{0}; i < rowCount(QModelIndex()) ; i++) {
+//        QVariant v;
+//        v.setValue(_pFrames->at(i));
+//        for (int j{0}; j < columnCount(QModelIndex()); j++) {
+//            setData(createIndex(i, j), v);
+//        }
+//    }
 
 }
 

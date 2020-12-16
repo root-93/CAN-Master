@@ -9,7 +9,7 @@ bool operator==(QCanBusFrame first, QCanBusFrame secound){
 void Stack::updateFrame(const QCanBusFrame &frame){
     //auto itr {find(frame)};
     
-    if(_frameList.contains(frame))
+    if(!_frameList.contains(frame))
         addFrame(frame);
     else{
         auto index = _frameList.indexOf(frame);

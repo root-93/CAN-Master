@@ -9,7 +9,8 @@
 class TableModel : public QAbstractTableModel{
         Q_OBJECT
     public:
-                        TableModel(QObject *patern = nullptr);
+                        TableModel(QObject *parent = nullptr)
+                            : QAbstractTableModel(parent), _pFrames{new QVector<QCanBusFrame>} {};
                         TableModel(QVector<QCanBusFrame> *frames, QObject *parent = nullptr);
 
         int             rowCount(const QModelIndex &parent) const override;
@@ -27,6 +28,7 @@ class TableModel : public QAbstractTableModel{
         void            update()noexcept;
 
     private:
+        uint            _rowCounter {0};
         QVector<QCanBusFrame> *_pFrames;
         QString         toHexString(qint32 val)const noexcept;
         QByteArray      formatData(QByteArray arr)const noexcept;

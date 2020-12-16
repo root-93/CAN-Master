@@ -7,8 +7,10 @@
 #include <QPointer>
 #include <QVector>
 #include <QCanBus>
+#include <QFuture>
 #include <QTableView>
 #include <QListView>
+#include <QTimer>
 #include "TableModel.hpp"
 #include "linux/can.h"
 #include "FilterDump.hpp"
@@ -26,39 +28,45 @@ class CanMaster : public QMainWindow
         enum {start,stop};
 
     public:
-                                CanMaster(QWidget *parent = nullptr);
+                                explicit CanMaster(QWidget *parent = nullptr);
                                 ~CanMaster();
 
     private slots:
         void                    foo(){}
-        void                    canGen();
-        void                    updateUi();
+        void                    canGen() noexcept;
+        void                    readFrames() noexcept;
         void                    on_btnConnect_clicked();
         void                    on_btnGen_clicked();
         void                    on_btnDump_clicked();       
         void                    on_btnSniff_clicked();
+        void                    on_btnRefresh_clicked();
 
     private:
         Ui::CanMaster           *_ui {};
         QStringListModel        *_pModel {};
         TableModel              *_pTableModel {};
-        int                     *_pRunGen {new int};
-        int                     *_pRunSniff {new int};
+        int                     *_pRunGen {new int(0)};
+        int                     *_pRunSniff {new int(0)};
         QAction                 *_pCanGenAction {};
         QAction                 *_pCanSniffAction {};
-        char                    *_params[3];
+        char                    *_params[6]{};
         QString                 _errorString;
         QPointer<QCanBusDevice> _pDev {};
-        const QString           plugin {"socketcan"};
-        QString                 _interface {"vcan0"};
+        const QString           _plugin {"socketcan"};
+        char                    *_pInterface{new char[6]{'v','c','a','n','0',0}};
         Filter                  *_pFilter {};
         Stack                   *_pStack {new Stack()};
+        QFuture<void>           futureGen;
+        QTimer                  *timer = new QTimer(this);
 
         void                    createMenuBar() noexcept;
         void                    createCanDev() noexcept;
-        void                    connectCan() noexcept;
+        void                    disconnectCanDevice() noexcept;
+        void                    connectCanDevice() noexcept;
         void                    configTv() noexcept;
         void                    configLv() noexcept;
-        void                    configApp() noexcept;
+        void                    updateUi() noexcept;
+        void                    readAnaliableDevices() noexcept;
+        void                    updateInterfaceName() noexcept;
 };
 #endif // CANMASTER_H

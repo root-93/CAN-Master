@@ -15,6 +15,7 @@ FilterSniff* FilterSniff::instance(Stack *stack){
 
 
 bool FilterSniff::checkFrame([[maybe_unused]]const QCanBusFrame &newFrame) noexcept{
+    checkFramesOutOfDate();
     return true;
 }
 
@@ -25,14 +26,14 @@ void FilterSniff::saveFrame(const QCanBusFrame &newFrame) noexcept{
 
 
 void FilterSniff::checkFramesOutOfDate() noexcept{
-    constexpr int ttlFrame {10}; //[sec]
+    constexpr int ttlFrame {5}; //[sec]
 
-    auto cond {[](const QCanBusFrame frame){
-                  auto now {QDateTime::currentSecsSinceEpoch()};
-                  auto frameTimeStamp {frame.timeStamp().seconds()};
+    static auto cond {[](const QCanBusFrame frame){
+                    auto now {QDateTime::currentSecsSinceEpoch()};
+                    auto frameTimeStamp {frame.timeStamp().seconds()};
                         
-                  return now > ( frameTimeStamp + ttlFrame);
-               }};
+                    return now > ( frameTimeStamp + ttlFrame);
+                }};
     
     _pStack->removeIf(cond);  
 }
